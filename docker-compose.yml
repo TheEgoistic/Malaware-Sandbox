@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./reports:/app/reports
+      - ./database:/app/database
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+    restart: unless-stopped
+    
+  analysis:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: malware-analyzer
+    volumes:
+      - ./uploads:/samples:ro
+      - ./yara_rules:/app/yara_rules:ro
+    networks:
+      - no-internet
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+
+networks:
+  no-internet:
+    driver: bridge
+    internal: true
+

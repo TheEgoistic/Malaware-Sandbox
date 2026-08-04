@@ -1,0 +1,131 @@
+pip3 install  scikit-learn pandas numpy joblib
+
+# requirements.txt
+Flask==3.0.0
+Werkzeug==3.0.1
+pefile==2023.2.7
+python-magic==0.4.27
+yara-python==4.3.1
+scikit-learn==1.3.2
+joblib==1.3.2
+requests==2.31.0
+reportlab==4.0.4
+# Core tooling
+#pip
+#setuptools
+#wheel
+
+# Networking & protocols
+scapy
+impacket
+netaddr
+dpkt
+pysmb
+ldap3
+pyasn1
+pyOpenSSL
+cryptography
+paramiko
+pysocks
+
+# Web testing
+requests
+httpx
+urllib3
+aiohttp
+beautifulsoup4
+lxml
+html5lib
+selenium
+playwright
+mechanize
+mitmproxy
+
+# Recon & OSINT
+python-nmap
+dnspython
+whois
+shodan
+censys
+sublist3r
+requests-futures
+
+# Active Directory / Windows
+bloodhound
+pywinrm
+pycryptodomex
+passlib
+bcrypt
+pypykatz
+minikerberos
+dsinternals
+
+# Exploit development
+pwntools
+ropper
+capstone
+keystone-engine
+unicorn
+lief
+
+# Reverse engineering
+r2pipe
+angr
+pyelftools
+
+# Fuzzing & automation
+hypothesis
+boofuzz
+fuzzywuzzy
+python-Levenshtein
+
+# File & malware analysis
+pefile
+oletools
+yara-python
+pdfminer.six
+pyzipper
+construct
+
+# Serialization & parsing
+pyyaml
+toml
+msgpack
+protobuf
+jsonschema
+marshmallow
+
+# CLI & reporting
+rich
+click
+typer
+tqdm
+tabulate
+colorama
+
+# Async & performance
+asyncio
+aiofiles
+uvloop
+
+# Databases & storage
+sqlalchemy
+psycopg2-binary
+pymongo
+redis
+
+
+# Testing & debugging
+pytest
+pytest-cov
+coverage
+debugpy
+
+# Misc useful utilities
+python-dateutil
+pytz
+regex
+loguru
+tenacity
+validators
+

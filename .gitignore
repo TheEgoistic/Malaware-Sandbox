@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+
+# Flask
+instance/
+
+# Uploads
+uploads/
+
+# Logs
+logs/
+
+# Reports (optional)
+reports/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store

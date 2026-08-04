@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Malware Analysis Sandbox{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Analysis Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Total Scans</h5>
+                <h1>{{ total_scans }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Benign Files</h5>
+                <h1>{{ total_scans - malicious_count }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5>Malicious Files</h5>
+                <h1>{{ malicious_count }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5>Detection Rate</h5>
+                <h1>{{ "%.1f"|format((malicious_count / total_scans * 100) if total_scans > 0 else 0) }}%</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Scans</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Filename</th>
+                                <th>SHA256</th>
+                                <th>Entropy</th>
+                                <th>Status</th>
+                                <th>Confidence</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scan in recent_scans %}
+                            <tr>
+                                <td>{{ scan[0] }}</td>
+                                <td>{{ scan[2][:20] }}...</td>
+                                <td><code>{{ scan[7][:16] }}...</code></td>
+                                <td>{{ scan[10] }}</td>
+                                <td>
+                                    {% if scan[8] %}
+                                        <span class="badge malicious-badge">Malicious</span>
+                                    {% else %}
+                                        <span class="badge benign-badge">Benign</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if scan[9] > 70 %}bg-danger{% else %}bg-success{% endif %}" 
+                                             style="width: {{ scan[9] }}%">
+                                            {{ "%.0f"|format(scan[9]) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ scan[12][:10] if scan[12] else '' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
