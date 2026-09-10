@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # docker/analyzer.py
 import sys
 import json
@@ -17,7 +20,7 @@ def main():
         sys.exit(1)
 
     print(f"Starting analysis for: {sample_path}", file=sys.stderr) # Log to stderr, not stdout which is for the final JSON
-
+    #print("Debug message", file=sys.stderr)  # Use stderr for logs
     # Initialize the final report dictionary
     report = {
         "filename": os.path.basename(sample_path),
