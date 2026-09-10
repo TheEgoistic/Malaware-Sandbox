@@ -1,247 +1,126 @@
-{% extends "base.html" %}
-
-{% block title %}Analysis Report - {{ report.original_filename }}{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Analysis Report</h2>
-            <div>
-                <a href="/download/{{ report.scan_id }}" class="btn btn-outline-secondary me-2">
-                    <i class="bi bi-download"></i> Download JSON
-                </a>
-                <a href="/" class="btn btn-primary">
-                    <i class="bi bi-arrow-left"></i> New Analysis
-                </a>
-            </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analysis Report</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f2f5; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; }
+        h1 { color: #2c3e50; }
+        .section { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .hash { font-family: monospace; word-break: break-all; font-size: 0.9em; }
+        .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; }
+        .badge { padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .malicious { background: #e74c3c; }
+        .clean { background: #27ae60; }
+        .unknown { background: #95a5a6; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #2c3e50; color: white; }
+    </style>
+</head>
+<body>
+    <a href="/" class="btn">← Back to Dashboard</a>
+    <div class="container">
+        <h1>📊 Analysis Report</h1>
+        
+        <div class="section">
+            <h2>File Information</h2>
+            <p><strong>Filename:</strong> {{ report.get('original_filename', report.get('filename', 'Unknown')) }}</p>
+            <p><strong>Scan ID:</strong> {{ report.get('scan_id', 'N/A') }}</p>
+            <p><strong>File Size:</strong> {{ report.get('file_size', report.get('size', 'N/A')) }} bytes</p>
         </div>
         
-        <!-- File Information -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-file-earmark"></i> File Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>Filename:</strong> {{ report.original_filename }}
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Upload Time:</strong> {{ report.upload_time }}
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>MD5:</strong> <code>{{ report.hashes.md5 }}</code>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>SHA1:</strong> <code>{{ report.hashes.sha1[:20] }}...</code>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <strong>SHA256:</strong> <code>{{ report.hashes.sha256 }}</code>
-                    </div>
-                </div>
-            </div>
+        <div class="section">
+            <h2>Hashes</h2>
+            <table>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Hash</th>
+                </tr>
+                <tr>
+                    <td><strong>MD5</strong></td>
+                    <td class="hash">{{ report.get('hashes', {}).get('md5', 'N/A') }}</td>
+                </tr>
+                <tr>
+                    <td><strong>SHA1</strong></td>
+                    <td class="hash">{{ report.get('hashes', {}).get('sha1', 'N/A') }}</td>
+                </tr>
+                <tr>
+                    <td><strong>SHA256</strong></td>
+                    <td class="hash">{{ report.get('hashes', {}).get('sha256', 'N/A') }}</td>
+                </tr>
+            </table>
         </div>
         
-        <!-- Prediction Result -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-robot"></i> Machine Learning Prediction</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4>Classification: 
-                            {% if report.ml_prediction.label == 'Malicious' %}
-                                <span class="badge malicious-badge">MALICIOUS</span>
-                            {% else %}
-                                <span class="badge benign-badge">BENIGN</span>
-                            {% endif %}
-                        </h4>
-                    </div>
-                    <div class="col-md-6">
-                        <h4>Confidence: {{ "%.1f"|format(report.ml_prediction.confidence) }}%</h4>
-                        <div class="progress">
-                            <div class="progress-bar {% if report.ml_prediction.confidence > 70 %}bg-danger{% elif report.ml_prediction.confidence > 40 %}bg-warning{% else %}bg-success{% endif %}" 
-                                 role="progressbar" 
-                                 style="width: {{ report.ml_prediction.confidence }}%">
-                                {{ "%.1f"|format(report.ml_prediction.confidence) }}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                {% if report.ml_prediction.probabilities %}
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <small>Benign Probability: {{ "%.1f"|format(report.ml_prediction.probabilities.benign) }}%</small>
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar bg-success" style="width: {{ report.ml_prediction.probabilities.benign }}%"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <small>Malicious Probability: {{ "%.1f"|format(report.ml_prediction.probabilities.malicious) }}%</small>
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar bg-danger" style="width: {{ report.ml_prediction.probabilities.malicious }}%"></div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Entropy Analysis -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Entropy Analysis</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h3>Entropy Score: {{ report.entropy }}</h3>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="progress" style="height: 30px;">
-                            <div class="progress-bar {% if report.entropy > 7 %}bg-danger{% elif report.entropy > 4 %}bg-warning{% else %}bg-success{% endif %}" 
-                                 style="width: {{ (report.entropy / 8) * 100 }}%">
-                                {{ report.entropy }}/8
-                            </div>
-                        </div>
-                        <small class="text-muted">
-                            {% if report.entropy > 7 %}
-                                High entropy - likely packed or encrypted
-                            {% elif report.entropy > 4 %}
-                                Medium entropy - possibly packed
-                            {% else %}
-                                Normal entropy range
-                            {% endif %}
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- YARA Matches -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> YARA Rule Matches</h5>
-            </div>
-            <div class="card-body">
-                {% if report.yara_matches %}
-                    <div class="list-group">
-                        {% for match in report.yara_matches %}
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">{{ match.rule }}</h6>
-                                    {% if match.tags %}
-                                        <div>
-                                            {% for tag in match.tags %}
-                                                <span class="badge bg-secondary">{{ tag }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                {% if match.meta and match.meta.description %}
-                                    <small class="text-muted">{{ match.meta.description }}</small>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
+        <div class="section">
+            <h2>Analysis Results</h2>
+            <p><strong>Entropy:</strong> {{ report.get('entropy', 'N/A') }}</p>
+            
+            {% set ml = report.get('ml_prediction', {}) %}
+            <p><strong>ML Prediction:</strong> 
+                {% if ml.get('label') == 'Malicious' %}
+                    <span class="badge malicious">⚠ Malicious</span>
+                {% elif ml.get('label') == 'Clean' %}
+                    <span class="badge clean">✓ Clean</span>
                 {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No YARA rules matched
-                    </div>
+                    <span class="badge unknown">Unknown</span>
                 {% endif %}
-            </div>
+            </p>
+            <p><strong>Confidence:</strong> {{ (ml.get('confidence', 0) * 100)|round(1) }}%</p>
+            
+            {% if report.get('analysis_environment') %}
+                <p><strong>Environment:</strong> {{ report.get('analysis_environment') }}</p>
+            {% endif %}
         </div>
-    </div>
-    
-    <div class="col-md-4">
-        <!-- PE Information -->
-        {% if report.pe_info and report.pe_info.is_pe %}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-cpu"></i> PE Information</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>Entry Point:</strong> <code>{{ report.pe_info.entry_point }}</code></p>
-                <p><strong>Sections:</strong> {{ report.pe_info.number_of_sections }}</p>
-                <p><strong>Machine:</strong> {{ report.pe_info.machine }}</p>
-                
-                {% if report.pe_info.sections %}
-                <h6>Sections:</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Entropy</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for section in report.pe_info.sections %}
-                            <tr>
-                                <td>{{ section.name }}</td>
-                                <td>{{ section.entropy }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
         
-        <!-- IOCs -->
-        {% if iocs %}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-bug"></i> Indicators of Compromise</h5>
-            </div>
-            <div class="card-body">
-                {% for ioc_type, ioc_list in iocs.items() %}
-                    {% if ioc_list %}
-                    <div class="mb-3">
-                        <h6>{{ ioc_type|replace('_', ' ')|title }}:</h6>
-                        <ul class="list-group">
-                            {% for ioc in ioc_list[:5] %}
-                            <li class="list-group-item py-1">
-                                <small><code>{{ ioc }}</code></small>
-                            </li>
+        <div class="section">
+            <h2>Indicators of Compromise (IOCs)</h2>
+            {% set iocs = report.get('iocs', {}) %}
+            {% if iocs %}
+                {% for ioc_type, values in iocs.items() %}
+                    {% if values %}
+                        <h3>{{ ioc_type|title }}</h3>
+                        <ul>
+                            {% for value in values[:10] %}
+                                <li>{{ value }}</li>
                             {% endfor %}
-                            {% if ioc_list|length > 5 %}
-                            <li class="list-group-item py-1 text-muted">
-                                <small>... and {{ ioc_list|length - 5 }} more</small>
-                            </li>
+                            {% if values|length > 10 %}
+                                <li><em>... and {{ values|length - 10 }} more</em></li>
                             {% endif %}
                         </ul>
-                    </div>
                     {% endif %}
                 {% endfor %}
-            </div>
+            {% else %}
+                <p>No IOCs found</p>
+            {% endif %}
         </div>
-        {% endif %}
         
-        <!-- Strings Summary -->
-        {% if report.strings %}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-text-paragraph"></i> Strings Summary</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>URLs Found:</strong> {{ report.strings.urls|length if report.strings.urls else 0 }}</p>
-                <p><strong>IPs Found:</strong> {{ report.strings.ips|length if report.strings.ips else 0 }}</p>
-                <p><strong>Registry Keys:</strong> {{ report.strings.registry_keys|length if report.strings.registry_keys else 0 }}</p>
-            </div>
+        <div class="section">
+            <h2>PE Information</h2>
+            {% set pe_info = report.get('pe_info', {}) %}
+            {% if pe_info %}
+                <p><strong>Is PE File:</strong> {{ pe_info.get('is_pe', 'No') }}</p>
+                {% if pe_info.get('is_pe') %}
+                    <p><strong>Sections:</strong> {{ pe_info.get('sections', [])|length }}</p>
+                    <p><strong>Imports:</strong> {{ pe_info.get('imports', [])|length }}</p>
+                    <p><strong>Entry Point:</strong> {{ pe_info.get('entry_point', 'N/A') }}</p>
+                {% endif %}
+            {% endif %}
         </div>
-        {% endif %}
+        
+        <div class="section">
+            <h2>YARA Matches</h2>
+            {% set yara_matches = report.get('yara_matches', []) %}
+            {% if yara_matches %}
+                <ul>
+                    {% for match in yara_matches %}
+                        <li>{{ match }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No YARA matches found</p>
+            {% endif %}
+        </div>
     </div>
-</div>
-{% endblock %}
-
+</body>
+</html>
